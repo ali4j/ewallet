@@ -13,40 +13,10 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 class SwaggerConfiguration {
 
     @Bean
-    open fun api(): Docket = Docket(DocumentationType.SWAGGER_2)
+    fun api(): Docket = Docket(DocumentationType.SWAGGER_2)
             .select()
             .apis(RequestHandlerSelectors.any())
             .paths(PathSelectors.any())
             .build()
 }
-
-//    fun apiInfo():ApiInfo {
-//        return ApiInfoBuilder()
-//                .title("ewallet-core api")
-//                .description("exposed api of core service")
-//                .build()
-//    }
-//
-//    fun createDocket(group:String, path:String):Docket {
-//        return Docket(DocumentationType.SWAGGER_2)
-//                .groupName(group)
-//                .apiInfo(apiInfo())
-//                .select()
-//                .apis(RequestHandlerSelectors.any())
-//                .paths(PathSelectors.regex(path))
-//                .build()
-//
-//    }
-//
-//    @Bean
-//    open fun walletApi() : Docket {
-//        return createDocket("Wallet", "/wallet.*")
-//    }
-//
-//    @Bean
-//    open fun cardApi() : Docket {
-//        return createDocket("Card", "/card.*")
-//    }
-
-
 
