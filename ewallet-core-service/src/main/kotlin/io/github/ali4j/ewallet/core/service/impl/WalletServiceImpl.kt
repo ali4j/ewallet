@@ -7,6 +7,8 @@ import io.github.ali4j.ewallet.core.repository.CardRepository
 import io.github.ali4j.ewallet.core.repository.WalletRepository
 import io.github.ali4j.ewallet.core.service.CardService
 import io.github.ali4j.ewallet.core.service.WalletService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
@@ -19,27 +21,36 @@ class WalletServiceImpl
             @Autowired val cardService: CardService,
             @Autowired val cardRepository: CardRepository) : WalletService {
 
+    val logger :Logger = LoggerFactory.getLogger(WalletServiceImpl::class.qualifiedName)
+
     override fun attachNewCardToWallet(wallet: Wallet, pan: String, name: String, expirationDate: String) {
 
-        var card = cardService.addCard(pan, name, expirationDate)
+        val card = cardService.addCard(pan, name, expirationDate)
         card.wallet = wallet
         cardRepository.save(card)
+
+        logger.info("card with pan:{} and id:{} is attached to wallet with id:{}",
+                pan, card.id.toString(), wallet.id.toString())
     }
 
     @Transactional
     override fun chargeWallet(id: UUID, amount: Long) {
 
-        var wallet = getWallet(id)
+        val wallet = getWallet(id)
 
-        var newBalance = wallet.balance + amount
+        val newBalance = wallet.balance + amount
             wallet.balance = newBalance
             walletRepository.save(wallet)
+
+        logger.info("wallet with id:{} got charged for amount:{}", id.toString(), amount.toString())
     }
 
     override fun getWallet(id: UUID): Wallet {
-        var maybeWallet = walletRepository.findById(id)
+        val maybeWallet = walletRepository.findById(id)
         if(maybeWallet.isPresent){
-            return maybeWallet.get()
+            val wallet = maybeWallet.get()
+            logger.info("wallet with id:{} is returned", wallet.id)
+            return wallet
         } else
             throw WalletNotFoundException()
     }
@@ -50,8 +61,7 @@ class WalletServiceImpl
     }
 
     override fun getCards(id: UUID): List<Card> {
-        var wallet : Wallet = getWallet(id)
-
+        val wallet : Wallet = getWallet(id)
         return cardRepository.findAllByWallet(wallet)
     }
 

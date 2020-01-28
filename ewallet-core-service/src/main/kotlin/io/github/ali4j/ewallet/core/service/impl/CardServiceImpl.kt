@@ -5,6 +5,8 @@ import io.github.ali4j.ewallet.core.common.exception.CardWithPanExistsException
 import io.github.ali4j.ewallet.core.model.Card
 import io.github.ali4j.ewallet.core.repository.CardRepository
 import io.github.ali4j.ewallet.core.service.CardService
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
@@ -12,8 +14,12 @@ import java.util.*
 @Service
 class CardServiceImpl(@Autowired val cardRepository: CardRepository) : CardService {
 
+    val logger : Logger = LoggerFactory.getLogger(CardServiceImpl::class.qualifiedName)
+
     override fun getCard(pan: String): Card {
-        return cardRepository.findByPan(pan).get()
+        val card = cardRepository.findByPan(pan).get()
+        logger.info("card with pan:{} and id:{} is returned.", card.pan, card.id)
+        return card
     }
 
     override fun addCard(pan: String, name: String, expirationDate: String) : Card{
@@ -21,8 +27,9 @@ class CardServiceImpl(@Autowired val cardRepository: CardRepository) : CardServi
         if(card!=null)
             throw CardWithPanExistsException()
         else  {
-            var newCard = Card(pan, name, expirationDate)
+            val newCard = Card(pan, name, expirationDate)
             cardRepository.save(newCard)
+            logger.info("new card with pan:{} and id:{} is saved.", newCard.pan, newCard.id)
             return newCard
         }
 
@@ -31,10 +38,12 @@ class CardServiceImpl(@Autowired val cardRepository: CardRepository) : CardServi
 
     override fun getCard(id: UUID) : Card {
 
-        var maybeCard = cardRepository.findById(id)
-        if (maybeCard.isPresent)
-            return maybeCard.get()
-        else
+        val maybeCard = cardRepository.findById(id)
+        if (maybeCard.isPresent) {
+            val card = maybeCard.get()
+            logger.info("card with pan:{} and id:{} is returned.", card.pan, card.id)
+            return card
+        } else
             throw CardNotFoundException()
 
     }
