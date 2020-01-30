@@ -7,5 +7,5 @@ an e-wallet system based on microservices architecture including several modules
 - gateway-service (not implemented yet)
 - app-service  (not implemented yet)
 - reports-service  (not implemented yet)
-- Mockbank-service  (not implemented yet)
+- mockbank-service  (not implemented yet)
 

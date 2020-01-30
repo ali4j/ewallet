@@ -23,7 +23,7 @@ class GlobalExceptionHandler(@Autowired val messageSource: MessageSource) {
 
     @ExceptionHandler(NotFoundException::class)
     @ResponseBody
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     fun translateException(e: NotFoundException, request: HttpServletRequest): Error {
         return translateException(e)
     }
