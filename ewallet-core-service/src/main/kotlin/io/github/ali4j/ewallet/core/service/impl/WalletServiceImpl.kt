@@ -1,9 +1,12 @@
 package io.github.ali4j.ewallet.core.service.impl
 
+import io.github.ali4j.ewallet.core.common.exception.EmailAddressIsAlreadyUsedException
 import io.github.ali4j.ewallet.core.common.exception.WalletNotFoundException
 import io.github.ali4j.ewallet.core.model.Card
 import io.github.ali4j.ewallet.core.model.Wallet
+import io.github.ali4j.ewallet.core.model.WalletOwner
 import io.github.ali4j.ewallet.core.repository.CardRepository
+import io.github.ali4j.ewallet.core.repository.WalletOwnerRepository
 import io.github.ali4j.ewallet.core.repository.WalletRepository
 import io.github.ali4j.ewallet.core.service.CardService
 import io.github.ali4j.ewallet.core.service.WalletService
@@ -19,7 +22,39 @@ class WalletServiceImpl
     (
             @Autowired val walletRepository:WalletRepository,
             @Autowired val cardService: CardService,
-            @Autowired val cardRepository: CardRepository) : WalletService {
+            @Autowired val cardRepository: CardRepository,
+            @Autowired val walletOwnerRepository: WalletOwnerRepository) : WalletService {
+
+
+
+    @Transactional
+    override fun createNewWallet(email:String, fullName:String) : UUID? {
+
+        val maybeWalletOwner = walletOwnerRepository.findWalletOwnerByEmail(email)
+        if (maybeWalletOwner.isPresent)
+            throw EmailAddressIsAlreadyUsedException()
+        else {
+            val walletOwner = WalletOwner(email, fullName)
+            val wallet = Wallet()
+            wallet.balance = 0
+            wallet.blockedBalance = 0
+
+            walletRepository.save(wallet)
+
+            walletOwner.wallet = wallet
+            walletOwnerRepository.save(walletOwner)
+
+            logger.info(
+                    "new wallet and new wallet owner is create, wallet_id:{}, wallet_owner_email:{}",
+                    wallet.id,
+                    walletOwner.email
+            )
+
+            return wallet.id
+
+        }
+
+    }
 
     val logger :Logger = LoggerFactory.getLogger(WalletServiceImpl::class.qualifiedName)
 

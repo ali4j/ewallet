@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.client.getForEntity
+import org.springframework.boot.test.web.client.postForEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class WalletControllersIntegrationTest(
@@ -24,7 +26,6 @@ class WalletControllersIntegrationTest(
                 restTemplate.getForEntity("/core/wallet/$walletId", Wallet::class)
 
         assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
-        assertThat(responseEntity.body).isNotEqualTo(null)
     }
 
     @Test
@@ -45,6 +46,33 @@ class WalletControllersIntegrationTest(
                 restTemplate.getForEntity("/core/wallet/$walletId", Wallet::class)
 
         assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+    }
+
+    @Test
+    fun `Should Return a 200 with valid wallet creation values`() {
+        val email = "test_email@test.com"
+        val fullName = "test_full_name1"
+
+        val requestBody = CreateNewWalletController.CreateNewWalletRequest(email, fullName)
+        val responseEntity:ResponseEntity<String> =
+                restTemplate.postForEntity("/core/wallet", requestBody, String::class)
+
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(UUID.fromString(responseEntity.body)).isNotNull()
+
+    }
+
+    @Test
+    fun `Should Return a 500 with with en existing email address`() {
+        val email = "test@test.com"
+        val fullName = "test_full_name"
+
+        val requestBody = CreateNewWalletController.CreateNewWalletRequest(email, fullName)
+        val responseEntity:ResponseEntity<String> =
+                restTemplate.postForEntity("/core/wallet", requestBody, String::class)
+
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+
     }
 
 

@@ -1,7 +1,5 @@
 package io.github.ali4j.ewallet.core.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
 import lombok.Getter
 import lombok.Setter
 import org.hibernate.annotations.ColumnDefault

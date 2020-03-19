@@ -16,6 +16,8 @@ interface WalletService {
 
     fun attachNewCardToWallet(wallet:Wallet, pan:String, name:String, expirationDate:String)
 
+    fun createNewWallet(email:String, fullName:String) : UUID?
+
 }
 
 
