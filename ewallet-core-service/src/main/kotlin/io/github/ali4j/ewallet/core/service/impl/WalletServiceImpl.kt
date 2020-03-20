@@ -26,6 +26,7 @@ class WalletServiceImpl
             @Autowired val walletOwnerRepository: WalletOwnerRepository) : WalletService {
 
 
+    val logger :Logger = LoggerFactory.getLogger(WalletServiceImpl::class.qualifiedName)
 
     @Transactional
     override fun createNewWallet(email:String, fullName:String) : UUID? {
@@ -56,9 +57,9 @@ class WalletServiceImpl
 
     }
 
-    val logger :Logger = LoggerFactory.getLogger(WalletServiceImpl::class.qualifiedName)
 
-    override fun attachNewCardToWallet(wallet: Wallet, pan: String, name: String, expirationDate: String) {
+
+    override fun attachNewCardToWallet(wallet: Wallet, pan: String, name: String, expirationDate: String) : UUID?{
 
         val card = cardService.addCard(pan, name, expirationDate)
         card.wallet = wallet
@@ -66,6 +67,9 @@ class WalletServiceImpl
 
         logger.info("card with pan:{} and id:{} is attached to wallet with id:{}",
                 pan, card.id.toString(), wallet.id.toString())
+
+        return card.id
+
     }
 
     @Transactional
