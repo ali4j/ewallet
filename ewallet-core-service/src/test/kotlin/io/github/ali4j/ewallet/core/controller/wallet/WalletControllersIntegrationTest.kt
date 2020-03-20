@@ -17,6 +17,57 @@ class WalletControllersIntegrationTest(
         @Autowired val restTemplate: TestRestTemplate) {
 
 
+    @Test
+    fun `Should Return a 500 for charging a non-existing wallet`() {
+        val walletId = "00000000-0000-0000-0000-000000000000"
+
+        val requestBody = ChargeWalletController.ChargeWalletRequest(1000L)
+        val responseEntity:ResponseEntity<String> =
+                restTemplate.postForEntity("/core/wallet/$walletId/charge", requestBody, String::class)
+
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+
+    @Test
+    fun `Should Return a 200 for charging an existing wallet`() {
+        val walletId = "708835db-5e8d-49df-b57a-60b912aca11b"
+
+        val requestBody = ChargeWalletController.ChargeWalletRequest(1000L)
+        val responseEntity:ResponseEntity<String> =
+                restTemplate.postForEntity("/core/wallet/$walletId/charge", requestBody, String::class)
+
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
+    }
+
+
+    @Test
+    fun `Should Return a 200 for attaching new valid card to an existing wallet`() {
+        val walletId = "708835db-5e8d-49df-b57a-60b912aca11b"
+
+        val requestBody = AttachNewCardToWalletController
+                .AttachNewCardToWalletRequest("1111222233334444", "2020/12", "Monkey D. Luffy")
+        val responseEntity:ResponseEntity<String> =
+                restTemplate.postForEntity("/core/wallet/$walletId/card", requestBody, String::class)
+
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(responseEntity.body).isNotNull()
+    }
+
+    @Test
+    fun `Should Return a 500 for attaching an existing card to an existing wallet`() {
+        val walletId = "708835db-5e8d-49df-b57a-60b912aca11b"
+
+        val requestBody = AttachNewCardToWalletController
+                .AttachNewCardToWalletRequest("0000000000000000", "2020/12", "Monkey D. Luffy")
+        val responseEntity:ResponseEntity<String> =
+                restTemplate.postForEntity("/core/wallet/$walletId/card", requestBody, String::class)
+
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+
+
 
     @Test
     fun `Should Return a valid Wallet`() {
@@ -63,7 +114,7 @@ class WalletControllersIntegrationTest(
     }
 
     @Test
-    fun `Should Return a 500 with with en existing email address`() {
+    fun `Should Return a 500 with with an existing email address`() {
         val email = "test@test.com"
         val fullName = "test_full_name"
 

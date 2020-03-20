@@ -16,10 +16,8 @@ class CardServiceImpl(@Autowired val cardRepository: CardRepository) : CardServi
 
     val logger : Logger = LoggerFactory.getLogger(CardServiceImpl::class.qualifiedName)
 
-    override fun getCard(pan: String): Card {
-        val card = cardRepository.findByPan(pan).get()
-        logger.info("card with pan:{} and id:{} is returned.", card.pan, card.id)
-        return card
+    override fun getCard(pan: String): Card? {
+        return cardRepository.findByPan(pan).orElse(null)
     }
 
     override fun addCard(pan: String, name: String, expirationDate: String) : Card{
