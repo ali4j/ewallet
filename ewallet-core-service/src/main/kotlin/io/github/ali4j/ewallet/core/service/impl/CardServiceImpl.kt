@@ -8,6 +8,7 @@ import io.github.ali4j.ewallet.core.service.CardService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -16,20 +17,57 @@ class CardServiceImpl(@Autowired val cardRepository: CardRepository) : CardServi
 
     val logger : Logger = LoggerFactory.getLogger(CardServiceImpl::class.qualifiedName)
 
-    override fun getCard(pan: String): Card? {
-        return cardRepository.findByPan(pan).orElse(null)
+    override fun getCard(pan: String): Card {
+        return cardRepository.findByPan(pan).orElseThrow{CardNotFoundException()}
     }
 
-    override fun addCard(pan: String, name: String, expirationDate: String) : Card{
-        val card = getCard(pan)
-        if(card!=null)
+
+    override fun getCards(pageIndex : Int, pageSize : Int) : List<Card> {
+        return cardRepository.findAll(PageRequest.of(pageIndex, pageSize)).content
+    }
+
+    override fun updateCard(id : UUID, pan: String, name: String, expirationDate: String){
+
+        val card = getCard(id)
+
+        try {
+            getCard(pan)
             throw CardWithPanExistsException()
-        else  {
+        }
+        catch (e : CardNotFoundException) {
+            card.expirationDate = expirationDate
+            card.name = name
+            card.pan = pan
+
+            cardRepository.save(card)
+            logger.info("card with id:{} get updated, new_pan:{}, new_name:{}, new_expiration_date:{}", card.pan, card.name, card.expirationDate)
+        }
+
+    }
+
+
+    override fun addCard(pan: String, name: String, expirationDate: String) : Card{
+
+        try {
+            getCard(pan)
+            throw CardWithPanExistsException()
+
+        } catch (e : CardNotFoundException) {
             val newCard = Card(pan, name, expirationDate)
             cardRepository.save(newCard)
             logger.info("new card with pan:{} and id:{} is saved.", newCard.pan, newCard.id)
             return newCard
         }
+
+/*
+        val card = getCard(pan)
+
+        if(card!=null)
+
+        else  {
+
+        }
+*/
 
 
     }

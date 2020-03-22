@@ -16,6 +16,29 @@ import java.util.*
 class WalletControllersIntegrationTest(
         @Autowired val restTemplate: TestRestTemplate) {
 
+    @Test
+    fun `Should Return a 200 for a valid card pan`() {
+        val cardPan = "0000000000000001"
+
+        val responseEntity:ResponseEntity<String> =
+                restTemplate.getForEntity("/core/card/$cardPan", null, String::class)
+
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.OK)
+    }
+
+
+    @Test
+    fun `Should Return a 404 for a non-existing card`() {
+        val cardPan = "9999999999999999"
+
+        val responseEntity:ResponseEntity<String> =
+                restTemplate.getForEntity("/core/card/$cardPan", null, String::class)
+
+        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    //########## WALLET test ##########
+
 
     @Test
     fun `Should Return a 500 for charging a non-existing wallet`() {
