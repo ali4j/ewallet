@@ -1,5 +1,6 @@
 package io.github.ali4j.ewallet.core.common.handler
 
+import io.github.ali4j.ewallet.core.common.exception.BusinessException
 import io.github.ali4j.ewallet.core.common.exception.NotFoundException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -27,6 +28,16 @@ class GlobalExceptionHandler(@Autowired val messageSource: MessageSource) {
     fun translateException(e: NotFoundException, request: HttpServletRequest): Error {
         return translateException(e)
     }
+
+    @ExceptionHandler(BusinessException::class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun translateException(e: BusinessException, request: HttpServletRequest): Error {
+        return translateException(e)
+    }
+
+
+
 
 
     fun translateException(exception: Exception): Error{
